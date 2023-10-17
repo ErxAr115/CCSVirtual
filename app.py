@@ -30,8 +30,31 @@ def webhook_whatsapp():
       bot = RiveScript()
       bot.load_file('chatbot.rive')
       bot.sort_replies()
+
       respuesta = bot.reply('localuser', mensaje)
       respuesta = respuesta.replace("\\n", "\\\n")
       respuesta = respuesta.replace("\\", "")
+      
+      import mysql.connector
+      mydb = mysql.connector.connect(
+         host = 'aws.connect.psdb.cloud',
+         user = 'xvupyh1ttw7hrdjtscbh',
+         password = 'pscale_pw_Knw6EVrjn5wuEYBzmq917qG4DqYMkCQrQ4omjVXznmQ',
+         database = 'ccsvirtualdb'
+      )
+      mycursor = mydb.cursor()
+      query = "SELECT count(id) AS cantidad FROM registro WHERE id_wa='" + idWA + "';"
+      mycursor.execute("SELECT count(id) AS cantidad FROM registro WHERE id_wa='" + idWA + "';")
+      cantidad = mycursor.fetchone()
+      cantidad = str(cantidad)
+      cantidad = int(cantidad)
+
+      if cantidad == 0:
+         sql = ("INSERT INTO registro"+ 
+        "(mensaje_recibido,mensaje_enviado,id_wa      ,timestamp_wa   ,telefono_wa) VALUES "+
+        "('"+mensaje+"'   ,'"+respuesta+"','"+idWA+"' ,'"+timestamp+"','"+telefonoCliente+"');")
+         mycursor.execute(sql)
+         mydb.commit()
+
       print(respuesta)
       return jsonify({"status":"success"}, 200)
