@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, request 
-import mysql.connector
+from flask import Flask, jsonify, request
+from dotenv import load_dotenv
+import os, mysql.connector
 from routes.site_routes import site
 app = Flask(__name__)
 app.register_blueprint(site)
@@ -36,13 +37,21 @@ def webhook_whatsapp():
       respuesta = respuesta.replace("\\n", "\\\n")
       respuesta = respuesta.replace("\\", "")
 
-      mydb = mysql.connector.connect(
-         host = 'aws.connect.psdb.cloud',
-         user = 'g01mqar3va79gz1h4ben',
-         password = 'pscale_pw_kqoGldLAjeSB8RmVcmrTVHjSvKfVsADllQXZxxdCfXr',
-         database = 'ccsvirtualdb'
+      load_dotenv()
+      DB_HOST = os.getenv("DB_HOST")
+      DB_USERNAME = os.getenv("DB_USERNAME")
+      DB_PASSWORD = os.getenv("DB_PASSWORD")
+      DB_DATABASE = os.getenv("DB_DATABASE")
+
+      connection = mysql.connector.connect(
+         host = DB_HOST,
+         user = DB_USERNAME,
+         password = DB_PASSWORD,
+         database = DB_DATABASE,
+         ssl_verify_identity = True,
+         ssl_ca = "path/to/ssl_cert"
       )
-      cur = mydb.cursor()
+      cur = connection.cursor()
       cur.execute("SELECT * FROM registro")
       
       print(respuesta)
