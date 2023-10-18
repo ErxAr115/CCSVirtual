@@ -37,22 +37,26 @@ def webhook_whatsapp():
       respuesta = respuesta.replace("\\n", "\\\n")
       respuesta = respuesta.replace("\\", "")
 
-      load_dotenv()
-      DB_HOST = os.getenv("DB_HOST")
-      DB_USERNAME = os.getenv("DB_USERNAME")
-      DB_PASSWORD = os.getenv("DB_PASSWORD")
-      DB_DATABASE = os.getenv("DB_DATABASE")
-
       connection = mysql.connector.connect(
-         host = DB_HOST,
-         user = DB_USERNAME,
-         password = DB_PASSWORD,
-         database = DB_DATABASE,
+         host = 'aws.connect.psdb.cloud',
+         user = 'f5gofkqljweejtwbnqt9',
+         password = 'pscale_pw_BiNVbxeYCvnVMM2il04m1STOnvouHjDvBqMB1LlIZle',
+         database = 'ccsvirtualdb',
          ssl_verify_identity = True,
          ssl_ca = "path/to/ssl_cert"
       )
       cur = connection.cursor()
-      cur.execute("SELECT * FROM registro")
+      cur.execute("SELECT count(id) AS cantidad FROM registro WHERE id_wa='" + idWA + "';")
+      cantidad, = cur.fetchone()
+      cantidad=str(cantidad)
+      cantidad=int(cantidad)
+
+      if cantidad == 0:
+         sql = ("INSERT INTO registro"+ 
+        "(mensaje_recibido,mensaje_enviado,id_wa      ,timestamp_wa   ,telefono_wa) VALUES "+
+        "('"+mensaje+"'   ,'"+respuesta+"','"+idWA+"' ,'"+timestamp+"','"+telefonoCliente+"');")
+         cur.execute(sql)
+         connection.commit()
       
       print(respuesta)
       return jsonify({"status":"success"}, 200)
