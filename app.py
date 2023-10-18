@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request 
+import mysql.connector
 from routes.site_routes import site
 app = Flask(__name__)
 app.register_blueprint(site)
@@ -34,27 +35,15 @@ def webhook_whatsapp():
       respuesta = bot.reply('localuser', mensaje)
       respuesta = respuesta.replace("\\n", "\\\n")
       respuesta = respuesta.replace("\\", "")
-      
-      import mysql.connector
+
       mydb = mysql.connector.connect(
          host = 'aws.connect.psdb.cloud',
-         user = 'xvupyh1ttw7hrdjtscbh',
-         password = 'pscale_pw_Knw6EVrjn5wuEYBzmq917qG4DqYMkCQrQ4omjVXznmQ',
+         user = 'g01mqar3va79gz1h4ben',
+         password = 'pscale_pw_kqoGldLAjeSB8RmVcmrTVHjSvKfVsADllQXZxxdCfXr',
          database = 'ccsvirtualdb'
       )
-      mycursor = mydb.cursor()
-      query = "SELECT count(id) AS cantidad FROM registro WHERE id_wa='" + idWA + "';"
-      mycursor.execute("SELECT count(id) AS cantidad FROM registro WHERE id_wa='" + idWA + "';")
-      cantidad = mycursor.fetchone()
-      cantidad = str(cantidad)
-      cantidad = int(cantidad)
-
-      if cantidad == 0:
-         sql = ("INSERT INTO registro"+ 
-        "(mensaje_recibido,mensaje_enviado,id_wa      ,timestamp_wa   ,telefono_wa) VALUES "+
-        "('"+mensaje+"'   ,'"+respuesta+"','"+idWA+"' ,'"+timestamp+"','"+telefonoCliente+"');")
-         mycursor.execute(sql)
-         mydb.commit()
-
+      cur = mydb.cursor()
+      cur.execute("SELECT * FROM registro")
+      
       print(respuesta)
       return jsonify({"status":"success"}, 200)
